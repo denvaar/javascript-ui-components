@@ -29,6 +29,11 @@ Example Usage (Existing select field)
 Example Usage (From JSON)
 =========================
 
+.. code-block:: html
+
+  <select id="my-select">
+  </select>
+  
 .. code-block:: javascript
 
   var options = {
