@@ -1,7 +1,11 @@
 
-class CustomSelect {
+class FontAwesomeSelect {
   
-  constructor(select, options) {
+  constructor(select, opts={}, data=[]) {
+    this.getOpts(opts);
+    if (data) {
+      select = this.jsonToSelect(select, data);
+    }
     this.select = select;
     this.isActive = false;
     // get the selected value, or default to the first <option>
@@ -19,6 +23,21 @@ class CustomSelect {
     this.createEvents();
   }
 
+  getOpts(opts) {
+    this.opts = opts;
+    if (!this.opts.optionSize) this.opts.optionSize = "fa-lg";
+    if (!this.opts.selectionSize) this.opts.selectionSize = "fa-lg";
+    var widths = {
+      "fa-lg": "50px",
+      "fa-2x": "50px",
+      "fa-3x": "70px",
+      "fa-4x": "95px",
+      "fa-5x": "115px"
+    };
+    this.iconWidth = widths[this.opts.optionSize];
+    this.selectedIconWidth = widths[this.opts.selectionSize];
+  }
+
   // TODO could be re-factored out of class
   hasParent(e, p) {
     if (!e) return false;
@@ -27,6 +46,22 @@ class CustomSelect {
       el = el.parentNode||false;
     }
     return (el!==false);
+  }
+
+  jsonToSelect(select, data) {
+    var options = data.map((obj) => {
+      var option = document.createElement("option");
+      if (obj.value) {
+        option.value = obj.value;
+      }
+      option.dataset.meta = obj.meta;
+      option.text = obj.label;
+      return option;
+    });
+    options.forEach((option) => {
+      select.appendChild(option);
+    });
+    return select;
   }
 
   makeStructure() {
@@ -40,7 +75,8 @@ class CustomSelect {
       // Grab the meta options.
       for (var key in el.dataset) {
         if (el.dataset.hasOwnProperty(key)) {
-          metaLabel = el.dataset[key]; // TODO allow for multiple.
+          metaLabel = `<i data-meta class="fa fa-${el.dataset[key]}
+                       ${this.opts.optionSize}"></i>`;
         }
       }
 
@@ -61,10 +97,13 @@ class CustomSelect {
     this.customSelect = document.createElement("div");
     this.customSelect.tabIndex = this.select.tabIndex;
     this.customSelect.className = "custom-select";
-    this.customSelect.innerHTML = `<span class="placeholder">
-      ${this.defaultOption.textContent}</span>` + dropdown;
+    this.customSelect.innerHTML = `<span class="placeholder">${this.defaultOption.textContent}</span>` + dropdown;
     this.select.parentNode.appendChild(this.customSelect);
     this.customSelect.appendChild(this.select); // Finished HTML structure
+
+    [].slice.call(document.querySelectorAll("i[data-meta]")).forEach((el) => {
+      el.style.width = this.iconWidth; 
+    });
 
   }
 
@@ -96,48 +135,31 @@ class CustomSelect {
     // keyboard navigation events
     this.customSelect.addEventListener("keydown", (event) => {
       var keyCode = event.keyCode || event.which;
-      
-      switch (keyCode) {
-        // up key
-        case 38:
-          event.preventDefault();
-          if (self.selectedIndex <= 0) {
-            self.selectedIndex = self.options.length - 1;
-          } else {
-            self.selectedIndex--;
-          }
+     
+      var len = self.options.length - 1;
 
-          var oldOption = self.customSelect.querySelector('li.active-item');
-          if (oldOption) oldOption.classList.remove('active-item');
-          self.options[self.selectedIndex].classList.add('active-item');
-          
-          console.log("move to previous!");//self._navigateOpts('prev');
-          
-          break;
-        // down key
-        case 40:
+      switch (keyCode) {
+        case 38: // up key
           event.preventDefault();
-          if (self.selectedIndex >= self.options.length - 1) {
-            self.selectedIndex = 0;
-          } else {
-            self.selectedIndex++;
-          }
-          
-          var oldOption = self.customSelect.querySelector('li.active-item');
-          if (oldOption) oldOption.classList.remove('active-item');
-          self.options[self.selectedIndex].classList.add('active-item');
-          
-          console.log("move to next!");//self._navigateOpts('next');
+          if (self.selectedIndex <= 0) { self.selectedIndex = len; }
+          else { self.selectedIndex--; }
+          self.updateItemClass();
           break;
-        // enter key
-        case 13:
+        case 40: // down key
           event.preventDefault();
-          if(self.isActive &&
-             typeof(self.preSelCurrent) != 'undefined' &&
-             self.preSelCurrent !== -1 ) {
-            
-            self._changeOption();
+          if (self.selectedIndex >= len) { self.selectedIndex = 0; }
+          else { self.selectedIndex++;}
+          self.updateItemClass();
+          break;
+        case 32: // space key
+          event.preventDefault();
+          self.toggleSelected();
+          break;
+        case 13: // enter key
+          event.preventDefault();
+          if (self.isActive) {
             self.toggleSelected();
+            self.changeSelection();
           }
           break;
       }
@@ -145,13 +167,20 @@ class CustomSelect {
 
   }
 
+  updateItemClass() {
+    var oldOption = this.customSelect.querySelector('li.active-item');
+    if (oldOption) oldOption.classList.remove('active-item');
+    this.options[this.selectedIndex].classList.add('active-item');
+  }
+
   changeSelection() {
     var option = this.options[this.selectedIndex];
     this.selectedOption.innerHTML = option.innerHTML;
     var meta = this.selectedOption.querySelector("[data-meta]")
     if (meta) {
-      meta.classList.remove("fa-2x");
-      meta.style.width = "25px";
+      meta.classList.add(this.opts.selectionSize);
+      meta.classList.remove(this.opts.optionSize);
+      meta.style.width = this.selectedIconWidth;
     }
     this.select.value = option.dataset.value;
   }
@@ -161,10 +190,8 @@ class CustomSelect {
       "active-menu");
     this.selectedOption.classList.toggle("placeholder-active");
     this.isActive = !this.isActive;  
-    
-    var oldOption = this.customSelect.querySelector('li.active-item');
-    if (oldOption) oldOption.classList.remove('active-item');
-    this.options[this.selectedIndex].classList.add('active-item');
+   
+    this.updateItemClass();
   }
 
 }

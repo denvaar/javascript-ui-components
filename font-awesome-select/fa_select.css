@@ -1,10 +1,13 @@
+
 .custom-select {
   cursor: default;
   display: block;
   position: relative;
   width: 100%;
   color: #1d485e;
+  border-bottom: 1px solid #ccc;
 }
+
 .custom-select li {
   padding-left: 10px;
   padding-top: 5px;
@@ -14,8 +17,7 @@
   /*color: #fff;*/
 }
 .active-item {
-  background: #f1f1f1;/*#208bfe;*/
-  /*color: #fff;*/
+  background: #f1f1f1;
 }
 .custom-select .placeholder {
   background: #fff;
@@ -51,13 +53,10 @@
   padding-top: 5px;
   padding-bottom: 5px;
   overflow-y: scroll;
-  /*border: 1px solid #ccc;*/
-  /*transition: max-height 0.25s ease-out;*/
 }
 [data-label] {
 }
 [data-meta] {
-  width: 50px;
   vertical-align: middle;
   text-align: center;
 }
@@ -66,4 +65,3 @@
   margin: 0;
   list-style: none;
 }
-
