@@ -3,6 +3,9 @@ Font Awesome Select
 
 A Lightweight and simple select field that is enabled for any Font Awesome icon to be used in the options.
 
+.. image:: fa-select.png
+    :scale: 30%
+
 Example Usage (Existing select field)
 =====================================
 
