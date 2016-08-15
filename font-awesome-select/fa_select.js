@@ -7,6 +7,7 @@ class FontAwesomeSelect {
       select = this.jsonToSelect(select, data);
     }
     this.select = select;
+    this.select.style.display = "none";
     this.isActive = false;
     // get the selected value, or default to the first <option>
     var defaultOption = this.select.querySelector('option[selected]');
@@ -19,6 +20,8 @@ class FontAwesomeSelect {
     this.options = [].slice.call(
       this.customSelect.querySelectorAll("li[data-option]"));
     this.selectedOption = this.customSelect.querySelector("span.placeholder");
+    this.selectedOption.style.height = this.selectedHeight;
+    this.selectedOption.style.lineHeight = this.selectedHeight;
     // setup event listeners.
     this.createEvents();
   }
@@ -34,6 +37,14 @@ class FontAwesomeSelect {
       "fa-4x": "95px",
       "fa-5x": "115px"
     };
+    var heights = {
+      "fa-lg": "29px",
+      "fa-2x": "42px",
+      "fa-3x": "58px",
+      "fa-4x": "74px",
+      "fa-5x": "90px"
+    };
+    this.selectedHeight = heights[this.opts.selectionSize];
     this.iconWidth = widths[this.opts.optionSize];
     this.selectedIconWidth = widths[this.opts.selectionSize];
   }
@@ -75,7 +86,7 @@ class FontAwesomeSelect {
       // Grab the meta options.
       for (var key in el.dataset) {
         if (el.dataset.hasOwnProperty(key)) {
-          metaLabel = `<i data-meta class="fa fa-${el.dataset[key]}
+          metaLabel = `<i data-meta class="fa fa-${el.dataset[key]} 
                        ${this.opts.optionSize}"></i>`;
         }
       }
@@ -101,7 +112,7 @@ class FontAwesomeSelect {
     this.select.parentNode.appendChild(this.customSelect);
     this.customSelect.appendChild(this.select); // Finished HTML structure
 
-    [].slice.call(document.querySelectorAll("i[data-meta]")).forEach((el) => {
+    [].slice.call(this.customSelect.querySelectorAll("i[data-meta]")).forEach((el) => {
       el.style.width = this.iconWidth; 
     });
 
@@ -178,8 +189,10 @@ class FontAwesomeSelect {
     this.selectedOption.innerHTML = option.innerHTML;
     var meta = this.selectedOption.querySelector("[data-meta]")
     if (meta) {
-      meta.classList.add(this.opts.selectionSize);
-      meta.classList.remove(this.opts.optionSize);
+      if (this.opts.selectionSize !== this.opts.optionSize) {
+        meta.classList.add(this.opts.selectionSize);
+        meta.classList.remove(this.opts.optionSize);
+      }
       meta.style.width = this.selectedIconWidth;
     }
     this.select.value = option.dataset.value;

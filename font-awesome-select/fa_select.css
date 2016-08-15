@@ -5,7 +5,6 @@
   position: relative;
   width: 100%;
   color: #1d485e;
-  border-bottom: 1px solid #ccc;
 }
 
 .custom-select li {
@@ -21,7 +20,6 @@
 }
 .custom-select .placeholder {
   background: #fff;
-  /*border: 1px solid #ccc;*/
   border-radius: 2px;
   padding: 5px 10px 5px 10px;
   display: block;
@@ -38,6 +36,7 @@
   content: "\f106";
 }
 .custom-select .custom-options {
+  z-index: 2;
   position: absolute;
   background: #fff;
   width: 100%;
